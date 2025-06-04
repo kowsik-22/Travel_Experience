@@ -12,6 +12,21 @@
     --rdp-selected-font: bold medium var(--rdp-font-family);
   }
 
+.Toastify__toast {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  color: #fff;
+  background-color: #05B6D3; /* Default background */
+  border-radius: 8px;
+}
+.Toastify__toast svg {
+  fill: #fff;
+}
+
+.Toastify__progress-bar {
+  background: #fff
+}
+
 @layer base{
 
   html{

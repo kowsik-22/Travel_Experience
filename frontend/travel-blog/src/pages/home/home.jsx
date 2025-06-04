@@ -169,8 +169,8 @@ const [openViewModal, setOpenViewModal] = useState({
     <>
       <Navbar
         userInfo={userInfo}
-        searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        searchQuery={searchQuery}
         onSearchNote={onSearchStory}
         handleClearSearch={handleClearSearch}
         onCalendarClick={() => setShowCalendar((prev) => !prev)}

@@ -5,6 +5,7 @@ import { validateEmail } from "../../utils/helper";
 import axiosInstance from '../../utils/axiosInstance';
 import loginBg from '../../assets/images/login.jpg';
 import { GoogleLogin } from '@react-oauth/google';
+import {jwtDecode} from "jwt-decode";
 
 
 
@@ -52,7 +53,28 @@ const Login = () => {
     }
   };
 
-  const handleGoogleLoginSuccess = async ()=>{};
+  const handleGoogleLoginSuccess = async (credentialResponse)=>{
+    try {
+    const credential = credentialResponse.credential;
+
+    const { name, email } = jwtDecode(credential);
+    const response = await axiosInstance.post("/google-login", { 
+      name,
+      email,
+      token: credential,
+     });
+
+    if (response.data && response.data.accessToken) {
+      localStorage.setItem("token", response.data.accessToken);
+      navigate("/dashboard");
+    } else {
+      setError("Google login failed. Try again.");
+    }
+    } catch (error) {
+      console.error(error);
+      setError("Google login failed. Please try again.");
+    }
+  };
 
 
   return (
@@ -96,13 +118,13 @@ const Login = () => {
             <p className="text-xs text-slate-500 text-center my-4"> Or </p>
 
             <div className="flex justify-center mb-4">
-  <div className="w-fit">
-    <GoogleLogin
-      onSuccess={handleGoogleLoginSuccess}
-      onError={() => setError("Google login failed. Try again.")}
-    />
-  </div>
-</div>
+              <div className="w-fit">
+                <GoogleLogin
+                  onSuccess={handleGoogleLoginSuccess}
+                  onError={() => setError("Google login failed. Try again.")}
+                />
+              </div>
+            </div>
 
             <p className="text-xs text-slate-500 text-center my-4"> Or </p>
 

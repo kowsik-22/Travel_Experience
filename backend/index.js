@@ -85,6 +85,48 @@ app.post("/login", async (req, res) =>{
     });
 });
 
+app.post("/google-login", async (req,res)=>{
+    const { token, email, name } = req.body;
+    try{
+        const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const load = ticket.getPayload();
+    if (load.email !== email) {
+      return res.status(401).json({ message: "Email verification failed" });
+    }
+    let user  = await User.findOne({email});
+    if(!user){
+        const randomPassword = Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+        user = new User({
+            fullName: name,
+            email,
+            password: hashedPassword
+        });
+        await user.save();
+    }
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "72h" }
+    )
+
+    return res.status(201).json({
+        error: false,
+        user: {fullName: user.fullName, email: user.email},
+        accessToken,
+        message: "Google login sucessful",
+    });
+    }
+
+    catch(err){
+        console.error("Google login failed:", err);
+        return res.status(401).json({ message: "Invalid Google token" });
+    }
+})
+
 app.get("/user", authenticateToken, async (req, res) => {
     const { userId } = req.user;
     const isUser = await User.findOne({_id: userId});
